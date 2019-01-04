@@ -1036,6 +1036,20 @@ static bool test_pvector_upper_lower_bound() {
 	mu_end;
 }
 
+static bool test_buf_vector() {
+	// run with asan or valgrind
+	char *buf = malloc (32);
+	RBufVector *v = r_buf_vector_new (buf, NULL);
+	mu_assert_eq_fmt (v->buf, (void *)buf, "r_buf_vector_new setting buf", "%p");
+	r_pvector_push (&v->v, buf);
+	r_pvector_push (&v->v, buf + 3);
+	r_pvector_push (&v->v, buf + 5);
+	r_pvector_push (&v->v, buf + 16);
+	mu_assert_eq_fmt (v->buf, (void *)buf, "r_buf_vector_new setting buf", "%p");
+	r_buf_vector_free (v);
+	mu_end;
+}
+
 static int all_tests() {
 	mu_run_test (test_vector_init);
 	mu_run_test (test_vector_new);
@@ -1071,6 +1085,8 @@ static int all_tests() {
 	mu_run_test (test_pvector_sort);
 	mu_run_test (test_pvector_foreach);
 	mu_run_test (test_pvector_upper_lower_bound);
+
+	mu_run_test (test_buf_vector);
 
 	return tests_passed != tests_run;
 }
